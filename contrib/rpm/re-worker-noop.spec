@@ -24,7 +24,9 @@ Requires: re-worker
 Requires: python-setuptools
 
 %description
-A simple noop worker who accepts all subcommands and does nothing
+A simple noop worker who accepts all subcommands and does
+nothing. Comes with one hard-coded subcommand 'noop:fail' which forces
+a deployment failure.
 
 %prep
 %setup -q -n %{_src_name}-%{version}
