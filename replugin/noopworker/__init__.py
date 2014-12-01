@@ -31,22 +31,21 @@ class NoopWorkerError(Exception):
 
 class NoopWorker(Worker):
     """
-    A simple noop worker
+    A simple noop worker who just echos back input parameters.
+
+Use the special 'fail' subcommand to force a failure in a step
     """
 
-    subcommands = ['List', 'Of', 'Subcommands']
-    # dynamic = []
-
     def verify_subcommand(self, parameters):
-        """Verify we were supplied with a valid subcommand"""
-        subcmd = parameters.get('subcommand', None)
-        if subcmd not in self.subcommands:
-            raise NoopWorkerError("Invalid subcommand provided: %s" % subcmd)
-        else:
-            return True
+        """Verify we were supplied with a valid subcommand
+
+NOOP worker is special. It accepts all subcommands and outputs/notifys
+all input (dynamic/parameters)
+        """
+        return True
 
     def process(self, channel, basic_deliver, properties, body, output):
-        """Processes Sat5 requests from the bus.
+        """Processes requests from the bus.
         """
         # Ack the original message
         self.ack(basic_deliver)
@@ -72,32 +71,30 @@ class NoopWorker(Worker):
         try:
             self.verify_subcommand(body['parameters'])
 
-            """Replace this comment block with your workers main logic.
+            subcmd = body['parameters'].get('command', 'noop')
+            # update the parameters dict w/ what we discovered (it may
+            # not have been set before, no no!)
+            body['parameters']['command'] = subcmd
 
-            Try to keep blocks of related code in methods
+            if subcmd != 'fail':
+                self.app_logger.info("Did the needful")
+                self.send(
+                    properties.reply_to,
+                    corr_id,
+                    {'status': 'completed'},
+                    exchange=''
+                )
+                # Notify over various other comm channels about the result
+                self.notify(
+                    'Noopworker success',
+                    str(body),
+                    'completed',
+                    corr_id)
 
-            Inside each method you should raise
-            NoopWorkerError if there is a non-recoverable
-            error. See "verify_subcommand" for an example.
-            """
-
-            # Everything following this means we were successful
-            self.app_logger.info("Did the needful")
-            self.send(
-                properties.reply_to,
-                corr_id,
-                {'status': 'completed'},
-                exchange=''
-            )
-            # Notify over various other comm channels about the result
-            self.notify(
-                'Subject',
-                'Message',
-                'completed',
-                corr_id)
-
-            # Output to the general logger (taboot tailer perhaps)
-            output.info('Finishing message')
+                # Output to the general logger (taboot tailer perhaps)
+                output.info('NOOP worker succeeded - %s' % str(body))
+            else:
+                raise NoopWorkerError("noop error - %s" % str(body))
 
         except NoopWorkerError, e:
             # If an error happens send a failure and log it to stdout
