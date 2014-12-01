@@ -71,10 +71,10 @@ all input (dynamic/parameters)
         try:
             self.verify_subcommand(body['parameters'])
 
-            subcmd = body['parameters'].get('command', 'noop')
+            subcmd = body['parameters'].get('subcommand', 'noop')
             # update the parameters dict w/ what we discovered (it may
             # not have been set before, no no!)
-            body['parameters']['command'] = subcmd
+            body['parameters']['subcommand'] = subcmd
 
             if subcmd != 'fail':
                 self.app_logger.info("Did the needful")
@@ -93,6 +93,7 @@ all input (dynamic/parameters)
 
                 # Output to the general logger (taboot tailer perhaps)
                 output.info('NOOP worker succeeded - %s' % str(body))
+                return True
             else:
                 raise NoopWorkerError("noop error - %s" % str(body))
 

@@ -34,11 +34,103 @@ MQ_CONF = {
 
 class TestNoop(TestCase):
     def setUp(self):
-        pass
+        """
+        Set up some reusable mocks.
+        """
+        TestCase.setUp(self)
+
+        self.channel = mock.MagicMock('pika.spec.Channel')
+
+        self.channel.basic_consume = mock.Mock('basic_consume')
+        self.channel.basic_ack = mock.Mock('basic_ack')
+        self.channel.basic_publish = mock.Mock('basic_publish')
+
+        self.basic_deliver = mock.MagicMock()
+        self.basic_deliver.delivery_tag = 123
+
+        self.properties = mock.MagicMock(
+            'pika.spec.BasicProperties',
+            correlation_id=123,
+            reply_to='me')
+
+        self.logger = mock.MagicMock('logging.Logger').__call__()
+        self.app_logger = mock.MagicMock('logging.Logger').__call__()
+        self.connection = mock.MagicMock('pika.SelectConnection')
 
     def tearDown(self):
         """
         After every test.
         """
-        pass
+        TestCase.tearDown(self)
+        self.channel.reset_mock()
+        self.channel.basic_consume.reset_mock()
+        self.channel.basic_ack.reset_mock()
+        self.channel.basic_publish.reset_mock()
 
+        self.basic_deliver.reset_mock()
+        self.properties.reset_mock()
+
+        self.logger.reset_mock()
+        self.app_logger.reset_mock()
+        self.connection.reset_mock()
+
+    def test_noop_worker_pass(self):
+        with nested(
+                mock.patch('pika.SelectConnection'),
+                mock.patch('replugin.noopworker.NoopWorker.notify'),
+                mock.patch('replugin.noopworker.NoopWorker.send')):
+
+            worker = noopworker.NoopWorker(
+                MQ_CONF,
+                logger=self.app_logger,
+                config_file='conf/example.json')
+
+            worker._on_open(self.connection)
+            worker._on_channel_open(self.channel)
+
+            self.assertTrue(worker.verify_subcommand({}))
+
+            body = {
+                "parameters": {
+                    "command": "noop",
+                    "subcommand": "EveryBodyWinsAPony",
+                }
+            }
+
+            result = worker.process(
+                self.channel,
+                self.basic_deliver,
+                self.properties,
+                body,
+                self.logger)
+
+    def test_noop_worker_fail(self):
+        with nested(
+                mock.patch('pika.SelectConnection'),
+                mock.patch('replugin.noopworker.NoopWorker.notify'),
+                mock.patch('replugin.noopworker.NoopWorker.send')):
+
+            worker = noopworker.NoopWorker(
+                MQ_CONF,
+                logger=self.app_logger,
+                config_file='conf/example.json')
+
+            worker._on_open(self.connection)
+            worker._on_channel_open(self.channel)
+
+            body = {
+                "parameters": {
+                    "command": "noop",
+                    "subcommand": "fail",
+                }
+            }
+
+            result = worker.process(
+                self.channel,
+                self.basic_deliver,
+                self.properties,
+                body,
+                self.logger)
+
+            self.assertEqual(self.app_logger.error.call_count, 1)
+            self.assertEqual(worker.send.call_args[0][2]['status'], 'failed')
