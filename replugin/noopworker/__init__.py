@@ -71,9 +71,7 @@ all input (dynamic/parameters)
         try:
             self.verify_subcommand(body['parameters'])
 
-            subcmd = body['parameters'].get('subcommand', 'noop')
-            # update the parameters dict w/ what we discovered (it may
-            # not have been set before, no no!)
+            subcmd = body['parameters'].get('subcommand', 'DefaultNoopSubCmd')
             body['parameters']['subcommand'] = subcmd
 
             if subcmd != 'Fail':
