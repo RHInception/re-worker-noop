@@ -76,7 +76,7 @@ all input (dynamic/parameters)
             # not have been set before, no no!)
             body['parameters']['subcommand'] = subcmd
 
-            if subcmd.lower() != 'fail':
+            if subcmd != 'Fail':
                 self.app_logger.info("Did the needful")
                 self.send(
                     properties.reply_to,

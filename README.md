@@ -9,6 +9,6 @@ A simple noop worker for Winternewt, our new [release engine hotness](https://gi
 
 # The special 'fail' step
 
-This worker provides **one** actual hard-coded step,
-``noop:fail``. Including this step in a playbook will force a
-deployment failure.
+This worker provides **one** actual hard-coded step, ``noop:Fail``
+(note the capital **F** in *fail*). Including this step in a playbook
+will force a deployment failure.
