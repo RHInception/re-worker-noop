@@ -27,7 +27,7 @@ except ImportError:
 
 setup(
     name='reworkernoop',
-    version='0.0.1',
+    version='1.0.0',
     description='A simple noop worker',
     author='See AUTHORS file',
     author_email='inception@redhat.com',

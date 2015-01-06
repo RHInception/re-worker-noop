@@ -107,7 +107,7 @@ srpm: rpmcommon
 	--define "_sourcedir %{_topdir}" \
 	-bs $(RPMSPEC)
 	@echo "#############################################"
-	@echo "Re-Core SRPM is built:"
+	@echo "NOOP SRPM is built:"
 	@find rpm-build -maxdepth 2 -name 're-worker-noop*src.rpm' | awk '{print "    " $$1}'
 	@echo "#############################################"
 
@@ -120,6 +120,6 @@ rpm: rpmcommon
 	--define "_sourcedir %{_topdir}" \
 	-ba $(RPMSPEC)
 	@echo "#############################################"
-	@echo "Re-Core RPMs are built:"
+	@echo "NOOP RPMs are built:"
 	@find rpm-build -maxdepth 2 -name 're-worker-noop*.rpm' | awk '{print "    " $$1}'
 	@echo "#############################################"

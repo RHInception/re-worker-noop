@@ -9,7 +9,7 @@
 
 Name: re-worker-noop
 Summary: Winternewt Noop Worker
-Version: 0.0.1
+Version: 1.0.0
 Release: 1%{?dist}
 
 Group: Applications/System
@@ -44,5 +44,8 @@ a deployment failure.
 %exclude %{python2_sitelib}/%{_pkg_name}/__init__.py*
 
 %changelog
+* Tue Jan  6 2015 Tim Bielawa <tbielawa@redhat.com> - 1.0.0-1
+- First real release
+
 * Mon Dec  1 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.1-1
 - First release
