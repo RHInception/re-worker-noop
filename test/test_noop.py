@@ -121,7 +121,7 @@ class TestNoop(TestCase):
             body = {
                 "parameters": {
                     "command": "noop",
-                    "subcommand": "fail",
+                    "subcommand": "Fail",
                 }
             }
 
